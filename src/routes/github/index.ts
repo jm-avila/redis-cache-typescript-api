@@ -18,3 +18,5 @@ router.get('/repos/:userName', async (req, res) => {
         console.error(err);
     }
 });
+
+export default router;
