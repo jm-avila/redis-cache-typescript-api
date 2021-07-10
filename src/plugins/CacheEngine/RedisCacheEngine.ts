@@ -16,9 +16,9 @@ class RedisCacheEngine implements CacheEngine {
 
     async get(key: string): Promise<string | null> {
         try {
-            const promise: string | null = await new Promise((_, resolve) => {
-                this.engine.get(key, (err, data) => {
-                    if (err) throw err;
+            const promise: string | null = await new Promise((resolve, reject) => {
+                this.engine.get(key, (error, data) => {
+                    if (error) reject(error);
                     resolve(data);
                 });
             });
@@ -28,12 +28,12 @@ class RedisCacheEngine implements CacheEngine {
         }
     }
 
-    async delete(key: string): Promise<void> {
-        return;
+    async delete(key: string): Promise<boolean> {
+        return this.engine.del(key);
     }
 
-    async deleteAll(key: string): Promise<void> {
-        return;
+    async deleteAll(): Promise<boolean> {
+        return this.engine.flushall();
     }
 }
 
