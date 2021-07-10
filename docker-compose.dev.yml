@@ -1,7 +1,18 @@
 version: "3.7"
+
 services:
   api:
     command: "npm run start:dev"
     ports:
       - "3030:3000"
       - "9229:9229"
+    depends_on: 
+      - redis-service
+  
+  redis-service:
+    container_name: redis-typescript-api
+    image: redis
+    volumes: 
+      - ./data:/data
+    ports:
+      - 6379:6379
