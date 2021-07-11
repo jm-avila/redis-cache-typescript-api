@@ -4,21 +4,13 @@ import fetch from 'node-fetch';
 export const getByUserName = async (req: Request, res: Response): Promise<void> => {
     try {
         const { userName } = req.params;
+        const fetchData = async () => {
+            const response = await fetch(`https://api.github.com/users/${userName}`);
+            if (response.status >= 300) throw Error('Opps');
+            return await response.text();
+        };
 
-        const cachedData = await req.cache?.get(userName);
-
-        if (cachedData) {
-            res.send(cachedData);
-            return;
-        }
-
-        const response = await fetch(`https://api.github.com/users/${userName}`);
-
-        if (response.status >= 300) throw Error('Opps');
-
-        const data = await response.text();
-
-        await req.cache?.save(userName, data);
+        const data = await req.cache.getOrSave(userName, fetchData);
 
         res.send(data);
     } catch (err) {
@@ -27,12 +19,12 @@ export const getByUserName = async (req: Request, res: Response): Promise<void> 
 };
 
 export const deleteAll = async (req: Request, res: Response): Promise<void> => {
-    const deleted = await req.cache?.deleteAll();
+    const deleted = await req.cache.deleteAll();
     res.send({ deleted });
 };
 
 export const deleteByUserName = async (req: Request, res: Response): Promise<void> => {
     const { userName } = req.params;
-    const deleted = await req.cache?.delete(userName);
+    const deleted = await req.cache.delete(userName);
     res.send({ deleted });
 };

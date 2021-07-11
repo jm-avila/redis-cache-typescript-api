@@ -10,8 +10,17 @@ class RedisCacheEngine implements CacheEngine {
         this.ttl = ttl;
     }
 
-    async save(key: string, value: string): Promise<boolean> {
-        return await this.engine.setex(key, this.ttl, value);
+    async getOrSave(key: string, cb: () => Promise<string>, ttl: number = this.ttl): Promise<string> {
+        const cachedData = await this.get(key);
+        if (cachedData) return cachedData;
+
+        const fetchedData = await cb();
+        await this.save(key, fetchedData, ttl);
+        return fetchedData;
+    }
+
+    async save(key: string, value: string, ttl: number = this.ttl): Promise<boolean> {
+        return await this.engine.setex(key, ttl, value);
     }
 
     async get(key: string): Promise<string | null> {
